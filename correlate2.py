@@ -1,4 +1,6 @@
 import socket, json, traceback, collections, re, os, errno, time, netaddr
+from datetime import datetime
+import datetime as dt
 from multiprocessing import Process, Queue
 from pymisp import ExpandedPyMISP, PyMISP, MISPEvent, MISPAttribute, MISPSighting, MISPTag
 
@@ -27,7 +29,7 @@ tag_dict = {
         'error': ['Other', 'comment']
         }
 
-def score(event, feed, local):
+def score(event, feed, local, tags):
     if local == 0 and feed > 0:
         print("Email alert")
         return 1
@@ -47,9 +49,11 @@ def correlateEvent(event_id):
     global misp
     result = misp.search(controller="events", eventid=event_id, metadata=True)
     origin = result[0]['Event']['uuid']
+    date = datetime.fromtimestamp(int(result[0]['Event']['timestamp']))
     related = result[0]['Event']['RelatedEvent']
     feedHits = 0
     localHits = 0
+    recentHits = 0
     tags = set()
     # parse all related events
     for event in related:
@@ -60,13 +64,18 @@ def correlateEvent(event_id):
             if 'Tag' in hit[0]['Event'].keys():
                 for tag in hit[0]['Event']['Tag']:
                     tags.add(json.dumps(tag))
+            date2 = datetime.fromtimestamp(int(hit[0]['Event']['timestamp']))
+            if date - date2 < dt.timedelta(days=40):
+                print("RECENT!!")
+            #print(datetime.date(int(date)))
+            #print(datetime.date(int(date2)))
     # add each tag in this set to the MISPEvent
     for tag in tags:
         t = MISPTag()
         t.from_json(tag)
         misp.tag(origin, t)
     localHits = len(related) - feedHits
-    return feedHits, localHits
+    return feedHits, localHits, tags
 
 
 def parse(data, event):
@@ -145,9 +154,9 @@ def qPop(q):
             for e in contents:
                 if len(e) > 0:
                     e_id = createEvent(json.loads(e))
-                    feed, local = correlateEvent(e_id)
+                    feed, local, tags = correlateEvent(e_id)
                     print(f"EVENT {e_id} ({feed} FEED HITS AND {local} LOCAL HITS)")
-                    s = score(e_id, feed, local)
+                    s = score(e_id, feed, local, tags)
                     print(f"SCORE {s}")
         except:
             traceback.print_exc()
