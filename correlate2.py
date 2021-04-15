@@ -7,6 +7,9 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 ## DEFINITIONS ##
 
+LOCAL_ORG = '8615364b-47b0-4603-82bf-2d76a9fe2b2f'
+THRESHOLD = 5
+
 # global misp object
 misp_url = 'https://192.168.1.4'
 misp_key = "wyBPpYHVs7FCemnRDs94MPu47YTiOx6ksglge7jx"
@@ -26,11 +29,18 @@ tag_dict = {
 def correlateEvent(event_id):
     print(f"Correlating {event_id}")
     global misp
-    related = misp.search(controller="events", event_id=event_id, org="96d0024e-9df7-4f16-8c54-a6fa8a6d0974")
+    result = misp.search(controller="events", event_id=event_id)
+    print(json.dumps(result, indent=2))
+    input("fuck me i guess")
+    related = result['Event']['RelatedEvent']
+    feedHits = 0
+    localHits = 0
     for event in related:
-        print(event['Event'].keys())
-    input("Press space to continue")
-    return len(related)
+        if event['Org']['uuid'] != LOCAL_ORG:
+            feedHits += 1
+    if feedHits > 0:
+        localHits = len(related) - feedHits
+    return feedHits, localHits
 
 
 def parse(data, event):
@@ -95,6 +105,8 @@ def createEvent(data):
         log.write(f"{e_id}\n")
     s, attr = parse(data, e_id)
     print(f"{e_id} {attr} {s}")
+    feeds, local = correlateEvent(e_id)
+    print(f"EVENT: {e_id}; FEED HITS: {feeds}; LOCAL HITS: {local}\n\n")
     return e_id
 
 def qPop(q):
@@ -105,7 +117,7 @@ def qPop(q):
             contents = q.get().split("|")
             for e in contents:
                 if len(e) > 0:
-                    createEvent(json.loads(e))
+                    eid = createEvent(json.loads(e))
         except:
             traceback.print_exc()
 
