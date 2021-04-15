@@ -1,4 +1,4 @@
-import socket, json, traceback, collections, re, os, errno
+import socket, json, traceback, collections, re, os, errno, time
 from multiprocessing import Process, Queue
 from pymisp import ExpandedPyMISP, PyMISP, MISPEvent, MISPAttribute, MISPSighting
 
@@ -7,7 +7,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 ## DEFINITIONS ##
 
-LOCAL_ORG = '8615364b-47b0-4603-82bf-2d76a9fe2b2f'
+LOCAL_ORG = "8615364b-47b0-4603-82bf-2d76a9fe2b2f"
 THRESHOLD = 5
 
 # global misp object
@@ -29,17 +29,15 @@ tag_dict = {
 def correlateEvent(event_id):
     print(f"Correlating {event_id}")
     global misp
-    result = misp.search(controller="events", event_id=event_id)
-    print(json.dumps(result, indent=2))
-    input("fuck me i guess")
-    related = result['Event']['RelatedEvent']
+    result = misp.search(controller="events", eventid=event_id, metadata=True)
+    related = result[0]['Event']['RelatedEvent']
     feedHits = 0
     localHits = 0
     for event in related:
-        if event['Org']['uuid'] != LOCAL_ORG:
+        if event['Event']['Orgc']['uuid'] != LOCAL_ORG:
+            print(event['Event']['Orgc']['uuid'])
             feedHits += 1
-    if feedHits > 0:
-        localHits = len(related) - feedHits
+    localHits = len(related) - feedHits
     return feedHits, localHits
 
 
@@ -105,26 +103,27 @@ def createEvent(data):
         log.write(f"{e_id}\n")
     s, attr = parse(data, e_id)
     print(f"{e_id} {attr} {s}")
-    feeds, local = correlateEvent(e_id)
-    print(f"EVENT: {e_id}; FEED HITS: {feeds}; LOCAL HITS: {local}\n\n")
     return e_id
 
 def qPop(q):
     while True:
+        # ignore an empty queue
         if q.empty():
             continue
+        # try to read from queue
         try:
             contents = q.get().split("|")
             for e in contents:
                 if len(e) > 0:
-                    eid = createEvent(json.loads(e))
+                    e_id = createEvent(json.loads(e))
+                    feed, local = correlateEvent(e_id)
+                    print(f"EVENT {e_id} HAS {feed} FEED HITS AND {local} LOCAL HITS")
         except:
             traceback.print_exc()
 
 ## EXECUTION BEGINS ##
 
 FIFO = 'PYPIPE'
-
 # create and start queue
 QUEUE = Queue()
 qproc = Process(target=qPop, args=(QUEUE,))
