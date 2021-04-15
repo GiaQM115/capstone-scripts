@@ -1,4 +1,4 @@
-import socket, json, traceback, collections, re, os, errno, time
+import socket, json, traceback, collections, re, os, errno, time, netaddr
 from multiprocessing import Process, Queue
 from pymisp import ExpandedPyMISP, PyMISP, MISPEvent, MISPAttribute, MISPSighting, MISPTag
 
@@ -9,6 +9,7 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 LOCAL_ORG = "8615364b-47b0-4603-82bf-2d76a9fe2b2f"
 THRESHOLD = 5
+FEEDHITSMULTIPLIER = 3
 
 # global misp object
 misp_url = 'https://192.168.1.4'
@@ -25,6 +26,21 @@ tag_dict = {
         'event': ['Other', 'comment'],
         'error': ['Other', 'comment']
         }
+
+def score(event, feed, local):
+    if local == 0 and feed > 0:
+        print("Email alert")
+        return 1
+    elif local == 0:
+        return 0
+    global FEEDHITSMULTIPLIER
+    global THRESHOLD
+    score = feed * FEEDHITSMULTIPLIER
+    score /= local
+    if score > THRESHOLD:
+        print("Email alert")
+    return score
+
 
 def correlateEvent(event_id):
     print(f"Correlating {event_id}")
@@ -44,7 +60,7 @@ def correlateEvent(event_id):
             if 'Tag' in hit[0]['Event'].keys():
                 for tag in hit[0]['Event']['Tag']:
                     tags.add(json.dumps(tag))
-    # add each tag in the set to the MISPEvent
+    # add each tag in this set to the MISPEvent
     for tag in tags:
         t = MISPTag()
         t.from_json(tag)
@@ -71,29 +87,30 @@ def parse(data, event):
             continue
         if type(data[key]) == list and key == "ips":
             for elem in data[key]:
-                attr = addAttribute(event, t, elem, category, sighting)
-                attr = addAttribute(event, 'ip-dst', elem, category, sighting)
+                attr = addAttribute(event, t, elem, category, netaddr.IPAddress(elem).is_private(), sighting)
+                attr = addAttribute(event, 'ip-dst', elem, category, netaddr.IPAddress(elem).is_private(), sighting)
             continue
         elif type(data[key]) == list and key == "eventTime":
             for elem in data[key]:
-                attr = addAttribute(event, t, elem, category, sighting)
+                attr = addAttribute(event, t, elem, category, True, sighting)
             continue
         if key == "host" and re.search(r'^\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}$', data[key]):
-            attr = addAttribute(event, 'ip-src', data[key], category, sighting)
+            attr = addAttribute(event, 'ip-src', data[key], category, True, sighting)
         elif key == "host" and re.search(r'^\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}:\d{1,5}', data[key]):
-            attr = addAttribute(event, 'ip-src|port', data[key], category, sighting)
+            attr = addAttribute(event, 'ip-src|port', data[key], category, True, sighting)
         elif key == "host" and data[key].find('.') == -1:
-            attr = addAttribute(event, t, data[key] + ".local", category, sighting)
+            attr = addAttribute(event, t, data[key] + ".local", category, True, sighting)
         else:
-            attr = addAttribute(event, t, data[key], category, sighting)
+            attr = addAttribute(event, t, data[key], category, False, sighting)
     return sighting, attr
 
-def addAttribute(event, a_type, val, category, sighting):
+def addAttribute(event, a_type, val, category, cor, sighting):
     global misp
     attr = MISPAttribute()
     attr.type = a_type
     attr.value = val
     attr.to_ids = False
+    attr.disable_correlation = cor
    # print(event)
     try:
         aid = misp.add_attribute(event, attr)
@@ -129,7 +146,9 @@ def qPop(q):
                 if len(e) > 0:
                     e_id = createEvent(json.loads(e))
                     feed, local = correlateEvent(e_id)
-                    print(f"EVENT {e_id} HAS {feed} FEED HITS AND {local} LOCAL HITS")
+                    print(f"EVENT {e_id} ({feed} FEED HITS AND {local} LOCAL HITS)")
+                    s = score(e_id, feed, local)
+                    print(f"SCORE {s}")
         except:
             traceback.print_exc()
 
