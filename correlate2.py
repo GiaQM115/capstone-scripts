@@ -1,6 +1,6 @@
 import socket, json, traceback, collections, re, os, errno, time
 from multiprocessing import Process, Queue
-from pymisp import ExpandedPyMISP, PyMISP, MISPEvent, MISPAttribute, MISPSighting
+from pymisp import ExpandedPyMISP, PyMISP, MISPEvent, MISPAttribute, MISPSighting, MISPTag
 
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -30,13 +30,25 @@ def correlateEvent(event_id):
     print(f"Correlating {event_id}")
     global misp
     result = misp.search(controller="events", eventid=event_id, metadata=True)
+    origin = result[0]['Event']['uuid']
     related = result[0]['Event']['RelatedEvent']
     feedHits = 0
     localHits = 0
+    tags = set()
+    # parse all related events
     for event in related:
         if event['Event']['Orgc']['uuid'] != LOCAL_ORG:
-            print(event['Event']['Orgc']['uuid'])
             feedHits += 1
+            # get any tags from the feed hits
+            hit = misp.search(controller="events", eventid=event['Event']['id'], metadata=True)
+            if 'Tag' in hit[0]['Event'].keys():
+                for tag in hit[0]['Event']['Tag']:
+                    tags.add(json.dumps(tag))
+    # add each tag in the set to the MISPEvent
+    for tag in tags:
+        t = MISPTag()
+        t.from_json(tag)
+        misp.tag(origin, t)
     localHits = len(related) - feedHits
     return feedHits, localHits
 
