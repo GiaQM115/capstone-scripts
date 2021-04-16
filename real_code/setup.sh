@@ -44,7 +44,7 @@ bash build.sh
 
 echo "Starting MISP instance"
 docker run -it --rm -v /docker/misp-db:/var/lib/mysql harvditsecurity/misp /init-db
-docker run -it -p 443:443 -p 80:80 -p 3306:3306 -p 6666:6666 -v /docker/misp-db:/var/lib/mysql harvarditsecurity/misp
+docker run --name=MISP -it -p 443:443 -p 80:80 -p 3306:3306 -p 6666:6666 -v /docker/misp-db:/var/lib/mysql harvarditsecurity/misp
 
 echo "Server will be up momentarily. Please go to https://$fqdn and login with "
 COMMENT
@@ -81,5 +81,7 @@ crontab cronlist > /dev/null
 rm cronlist
 
 echo -n "Building Docker image"
+docker build -t correlation-base .
 echo -n "Running container"
+docker run --name=comparison-server -d -p $port:$port correlation-base
 docker ps
