@@ -1,0 +1,5 @@
+netaddr==0.8.0
+urllib3==1.22
+mysql_connector_repackaged==0.3.1
+mysql-connector==2.2.9
+pymisp==2.4.141.1
