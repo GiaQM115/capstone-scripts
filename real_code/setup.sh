@@ -2,12 +2,14 @@
 
 echo "Please make sure you are running with root privileges"
 
-<<COMMENT
 echo "Updating apt"
 apt update
 
 echo "Checking for git"
 apt install git
+
+echo "Checking for Docker"
+apt install docker
 
 echo "Fetching MISP instance"
 git clone https://github.com/harvard-itsecurity/docker-misp.git
@@ -18,10 +20,10 @@ read mysql
 
 echo -n "Set your GPG password: "
 read gpg
-COMMENT
+
 echo -n "Set the FQDN for your MISP instance: "
 read fqdn
-<<COMMENT
+
 echo -n "Set your postfix relay, or press Enter for default (localhost): "
 read postfix
 
