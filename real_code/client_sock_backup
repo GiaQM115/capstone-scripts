@@ -1,7 +1,7 @@
 import socket, json, traceback, collections, re, time
 
 ## DEFINITIONS ##
-PORT = 12345
+PORT = MISP_SERVER_PORT
 
 def recvData():
     data = ""

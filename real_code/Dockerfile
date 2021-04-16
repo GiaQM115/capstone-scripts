@@ -4,11 +4,12 @@ COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
 COPY client_sock.py .
-COPY correlate2.py .
+COPY correlate.py .
 COPY send_emails.py .
 COPY run.sh . 
-COPY input.txt .
 EXPOSE 12345
+
+COPY input.txt .
 
 ENTRYPOINT ["bash"]
 CMD ["run.sh"]
