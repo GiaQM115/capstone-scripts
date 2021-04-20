@@ -11,12 +11,12 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 ## DEFINITIONS ##
 
-LOCAL_ORG = "blahblahblah-blah"
-THRESHOLD = 5
+LOCAL_ORG = "8615364b-47b0-4603-82bf-2d76a9fe2b2f"
+THRESHOLD = 0
 
 # global misp object
 misp_url = "https://192.168.1.4"
-misp_key = "yeehaw123"
+misp_key = "wyBPpYHVs7FCemnRDs94MPu47YTiOx6ksglge7jx"
 misp = ExpandedPyMISP(misp_url, misp_key, False)
 
 tag_dict = {

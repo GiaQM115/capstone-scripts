@@ -2,7 +2,6 @@
 
 echo "Please make sure you are running with root privileges"
 
-<<COMMENT
 echo "Updating apt"
 apt update
 
@@ -21,7 +20,7 @@ read gpg
 COMMENT
 echo -n "Set the FQDN for your MISP instance: "
 read fqdn
-<<COMMENT
+
 echo -n "Set your postfix relay, or press Enter for default (localhost): "
 read postfix
 
