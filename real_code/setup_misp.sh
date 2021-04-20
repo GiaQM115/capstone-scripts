@@ -8,6 +8,9 @@ apt update
 echo "Checking for git"
 apt install git
 
+echo "Checking for Docker"
+apt install docker
+
 echo "Fetching MISP instance"
 git clone https://github.com/harvard-itsecurity/docker-misp.git
 cd docker-misp
@@ -17,7 +20,7 @@ read mysql
 
 echo -n "Set your GPG password: "
 read gpg
-COMMENT
+
 echo -n "Set the FQDN for your MISP instance: "
 read fqdn
 
