@@ -9,11 +9,17 @@ echo "Checking for git"
 apt install git
 
 echo "Checking for Docker"
-apt install docker
+snap install docker
+
+echo "Removing old containers and directories"
+rm -rf docker-misp
+docker stop MISP
+docker rm MISP
+docker stop comparison-server
+docker rm comparison-server
 
 echo "Fetching MISP instance"
 git clone https://github.com/harvard-itsecurity/docker-misp.git
-cd docker-misp
 
 echo -n "Set your MYSQL password:  "
 read mysql
@@ -27,7 +33,7 @@ read fqdn
 echo -n "Set your postfix relay, or press Enter for default (localhost): "
 read postfix
 
-echo -n "Set your MISP admin email, or press Enter for default (admin@localhost): "
+echo -n "Set your MISP admin email, or press Enter for default (admin@admin.test): "
 read email
 
 echo "Updating build files"
@@ -38,21 +44,26 @@ if [ ! -z "${postfix}" ]; then
 	sed -i "s/POSTFIX_RELAY_HOST=.*\\\/POSTFIX_RELAY_HOST=$postfix \\\/" docker-misp/build.sh 
 fi
 if [ ! -z "${email}" ]; then
-	sed -i "s/MISP_EMAIL=.*\\\/MISP_MAIL=$email \\\/" docker-misp/build.sh 
+	sed -i "s/MISP_EMAIL=.*\\\/MISP_EMAIL=$email \\\/" docker-misp/build.sh 
 else
 	email='admin@admin.test'
 fi
 
 echo "Building MISP instance"
-cat build.sh
+cd docker-misp
 bash build.sh
 
-echo "Starting MISP instance"
-docker run -it --rm -v /docker/misp-db:/var/lib/mysql harvditsecurity/misp /init-db
-docker run --name=MISP -it -p 443:443 -p 80:80 -p 3306:3306 -p 6666:6666 -v /docker/misp-db:/var/lib/mysql harvarditsecurity/misp
+echo "Creating DB directory at /etc/docker/misp-db"
+mkdir -p /etc/docker/misp-db
 
-echo "Server will be up momentarily. Please go to https://$fqdn and login with "
-COMMENT
+echo "Starting MISP instance"
+docker run -d --rm -v /etc/docker/misp-db:/var/lib/mysql harvarditsecurity/misp /init-db
+docker run --name=MISP -d -p 443:443 -p 80:80 -p 3306:3306 -p 6666:6666 -v /etc/docker/misp-db:/var/lib/mysql harvarditsecurity/misp
+
+echo "Server will be up momentarily. Please go to https://$fqdn and login with $email"
+
+cd ../
+
 echo -n "Server Listening Port: "
 read port
 
@@ -90,3 +101,4 @@ docker build -t correlation-base .
 echo -n "Running container"
 docker run --name=comparison-server -d -p $port:$port correlation-base
 docker ps
+COMMENT
