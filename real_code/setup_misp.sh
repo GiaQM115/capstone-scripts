@@ -33,7 +33,7 @@ read fqdn
 echo -n "Set your postfix relay, or press Enter for default (localhost): "
 read postfix
 
-echo -n "Set your MISP admin email, or press Enter for default (admin@admin.test): "
+echo -n "Set your MISP admin email, or press Enter for default (admin@localhost): "
 read email
 
 echo "Updating build files"
@@ -46,7 +46,7 @@ fi
 if [ ! -z "${email}" ]; then
 	sed -i "s/MISP_EMAIL=.*\\\/MISP_EMAIL=$email \\\/" docker-misp/build.sh 
 else
-	email='admin@admin.test'
+	email='admin@localhost'
 fi
 
 echo "Building MISP instance"
@@ -60,7 +60,7 @@ echo "Starting MISP instance"
 docker run -d --rm -v /etc/docker/misp-db:/var/lib/mysql harvarditsecurity/misp /init-db
 docker run --name=MISP -d -p 443:443 -p 80:80 -p 3306:3306 -p 6666:6666 -v /etc/docker/misp-db:/var/lib/mysql harvarditsecurity/misp
 
-echo "Server will be up momentarily. Please go to https://$fqdn and login with $email"
+echo "Server will be up momentarily. Please go to https://$fqdn and login with '$email', PW: 'admin'"
 
 cd ../
 
@@ -101,4 +101,3 @@ docker build -t correlation-base .
 echo -n "Running container"
 docker run --name=comparison-server -d -p $port:$port correlation-base
 docker ps
-COMMENT
