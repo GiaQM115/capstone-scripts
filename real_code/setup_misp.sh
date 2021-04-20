@@ -31,17 +31,20 @@ echo -n "Set your MISP admin email, or press Enter for default (admin@localhost)
 read email
 
 echo "Updating build files"
-sed -i "s/MYSQL_MISP_PASSWORD=.*\\/MYSQL_MISP_PASSWORD=$mysql\\/" build.sh 
-sed -i "s/MISP_GPG_PASSWORD=.*\\/MISP_GPG_PASSWORD=$gpg\\/" build.sh 
-sed -i "s/MISP_FQDN=.*\\/MISP_FQDN=$fqdn\\/" build.sh 
+sed -i "s/MYSQL_MISP_PASSWORD=.*\\\/MYSQL_MISP_PASSWORD=$mysql \\\/" docker-misp/build.sh 
+sed -i "s/MISP_GPG_PASSWORD=.*\\\/MISP_GPG_PASSWORD=$gpg \\\/" docker-misp/build.sh 
+sed -i "s/MISP_FQDN=.*\\\/MISP_FQDN=$fqdn \\\/" docker-misp/build.sh 
 if [ ! -z "${postfix}" ]; then
-	sed -i "s/POSTFIX_RELAY_HOST=.*\\/POSTFIX_RELAY_HOST=$postfix\\/" build.sh 
+	sed -i "s/POSTFIX_RELAY_HOST=.*\\\/POSTFIX_RELAY_HOST=$postfix \\\/" docker-misp/build.sh 
 fi
 if [ ! -z "${email}" ]; then
-	sed -i "s/MISP_EMAIL=.*\\/MISP_MAIL=$email\\/" build.sh 
+	sed -i "s/MISP_EMAIL=.*\\\/MISP_MAIL=$email \\\/" docker-misp/build.sh 
+else
+	email='admin@admin.test'
 fi
 
 echo "Building MISP instance"
+cat build.sh
 bash build.sh
 
 echo "Starting MISP instance"
