@@ -46,10 +46,13 @@ def get_emails(tags):
     email_set = set()
     mycursor = mydb.cursor()
     for tag in tags:
-        mycursor.execute(f"SELECT mappings.EMAIL from mappings inner join groups on groups.GNAME = mappings.GNAME inner join events on groups.NOTIFY = events.NAME where events.IDENTIFIER = '{tag}'")
+        mycursor.execute(f"SELECT mappings.EMAIL from mappings inner join groups on groups.GNAME = mappings.GNAME where groups.TAG = '{tag}'")
         myresult = mycursor.fetchall()
         for query in myresult:
             email_set.add(query[0])
+    
+    if not email_set:
+        print("yyet")
     print(email_set)
     return email_set
 
@@ -65,13 +68,12 @@ def send_emails(event, tags):
     #FROM_EMAIL_PASS = getpass() 
     FROM_EMAIL_PASS = "Possum@490"
     Contacts = get_emails(tags)
-    print(Contacts)
     for contact in Contacts:
         email = contact
         subject = f'MISP ALERT EVENT {event}'
         msg = generate_msg(event, tags)
-        send(FROM_EMAIL, FROM_EMAIL_PASS,email, subject, msg)
-
+        #send(FROM_EMAIL, FROM_EMAIL_PASS,email, subject, msg)
+send_emails(11111, ["c"])
 
 
 
