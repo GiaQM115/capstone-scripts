@@ -3,13 +3,19 @@
 echo "Please make sure you are running with root privileges"
 
 echo "Updating apt"
-apt update
+apt-get update
 
 echo "Checking for git"
-apt install git
+apt-get insall git
 
-echo "Checking for Docker"
-snap install docker
+echo "Fetching Docker dependencies"
+apt-get install apt-transport-https ca-certificates curl software-properties-common lsb-release
+
+echo "Adding Docker GPG key"
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+echo "Setting up repository"
+apt-add-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 
 echo "Removing old containers and directories"
 rm -rf docker-misp
