@@ -11,12 +11,12 @@ urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 ## DEFINITIONS ##
 
-LOCAL_ORG = "123"
-THRESHOLD = 12
+LOCAL_ORG = "org123"
+THRESHOLD = 1
 
 # global misp object
 misp_url = "https://localhost"
-misp_key = "456"
+misp_key = "auth123"
 misp = ExpandedPyMISP(misp_url, misp_key, False)
 
 tag_dict = {

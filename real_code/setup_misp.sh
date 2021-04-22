@@ -94,6 +94,7 @@ echo -n "Initial threshold (this can be tuned later): "
 read threshold
 
 
+cd scripts
 cp client_sock_backup client_sock.py
 cp correlate_backup correlate.py
 cp fetch_backup fetch.py
@@ -114,6 +115,7 @@ printf "Building Docker image\n"
 docker build -t correlation-base .
 printf "Running container\n"
 docker run --name=comparison-server -d -p $port:$port correlation-base
+cd ../
 
 mkdir -p user_manager/mysql
 
