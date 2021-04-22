@@ -1,5 +1,5 @@
 FROM ubuntu:18.04
-RUN apt update -y && apt upgrade -y && apt install -y python3.6 && apt install -y python3-pip
+RUN apt update -y && apt upgrade -y && apt install -y python3.6 && apt install -y python3-pip && apt install -y cron && systemctl enable cron
 COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
