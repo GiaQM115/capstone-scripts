@@ -33,8 +33,9 @@ docker stop comparison-server
 docker rm comparison-server
 docker stop user-manager
 docker rm user-manager
-docker rmi mattrayner/lamp:latest-1804
-<<COMMENT
+docker rmi harvarditsecurity/misp
+docker rmi mattrayner/lamp
+
 printf "Fetching MISP instance\n"
 git clone https://github.com/harvard-itsecurity/docker-misp.git
 
@@ -43,10 +44,10 @@ read mysql
 
 echo -n "Set your GPG password: "
 read gpg
-COMMENT
+
 echo -n "Set the FQDN for your MISP instance: "
 read fqdn
-<<COMMENT
+
 echo -n "Set your postfix relay, or press Enter for default (localhost): "
 read postfix
 
@@ -80,7 +81,7 @@ docker run --name=MISP -d -p 443:443 -p 80:80 -p 3306:3306 -p 6666:6666 -v /etc/
 printf "Server will be up momentarily. Please go to https://$fqdn and login with '$email', PW: 'admin'\n"
 
 cd ../
-COMMENT
+
 echo -n "Server Listening Port: "
 read port
 
