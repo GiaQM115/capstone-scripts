@@ -1,0 +1,114 @@
+Connecting to MISP server...
+
+Finding new event in database...
+Event found:
+{
+  "id": "870",
+  "orgc_id": "4",
+  "org_id": "1",
+  "date": "2018-01-23",
+  "threat_level_id": "3",
+  "info": "OSINT - Analyzing CrossRAT",
+  "published": true,
+  "uuid": "5a719a5d-ba14-4ec4-b4b8-4c94950d210f",
+  "attribute_count": "18",
+  "analysis": "2",
+  "timestamp": "1517454034",
+  "distribution": "3",
+  "proposal_email_lock": false,
+  "locked": false,
+  "publish_timestamp": "1614883275",
+  "sharing_group_id": "0",
+  "disable_correlation": false,
+  "extends_uuid": "",
+  "Org": {
+    "id": "1",
+    "name": "ORGNAME",
+    "uuid": "96d0024e-9df7-4f16-8c54-a6fa8a6d0974",
+    "local": true
+  },
+  "Orgc": {
+    "id": "4",
+    "name": "CIRCL",
+    "uuid": "55f6ea5e-2c60-40e5-964f-47a8950d210f",
+    "local": false
+  },
+  "RelatedEvent": [
+    {
+      "Event": {
+        "id": "866",
+        "date": "2018-01-25",
+        "threat_level_id": "3",
+        "info": "OSINT - Dark Caracal Cyber-espionage at a Global Scale",
+        "published": true,
+        "uuid": "5a69ed26-44c8-423c-a8dc-4f7b950d210f",
+        "analysis": "2",
+        "timestamp": "1518231742",
+        "distribution": "3",
+        "org_id": "1",
+        "orgc_id": "4",
+        "Org": {
+          "id": "1",
+          "name": "ORGNAME",
+          "uuid": "96d0024e-9df7-4f16-8c54-a6fa8a6d0974"
+        },
+        "Orgc": {
+          "id": "4",
+          "name": "CIRCL",
+          "uuid": "55f6ea5e-2c60-40e5-964f-47a8950d210f"
+        }
+      }
+    }
+  ],
+  "Galaxy": [],
+  "Tag": [
+    {
+      "id": "3",
+      "name": "tlp:white",
+      "colour": "#ffffff",
+      "exportable": true,
+      "user_id": "0",
+      "hide_tag": false,
+      "numerical_value": null,
+      "is_galaxy": false,
+      "is_custom_galaxy": false,
+      "local": 0
+    },
+    {
+      "id": "63",
+      "name": "enisa:nefarious-activity-abuse=\"remote-access-tool\"",
+      "colour": "#4bec00",
+      "exportable": true,
+      "user_id": "0",
+      "hide_tag": false,
+      "numerical_value": null,
+      "is_galaxy": false,
+      "is_custom_galaxy": false,
+      "local": 0
+    },
+    {
+      "id": "250",
+      "name": "workflow:todo=\"create-missing-misp-galaxy-cluster-values\"",
+      "colour": "#850048",
+      "exportable": true,
+      "user_id": "0",
+      "hide_tag": false,
+      "numerical_value": null,
+      "is_galaxy": false,
+      "is_custom_galaxy": false,
+      "local": 0
+    },
+    {
+      "id": "251",
+      "name": "misp-galaxy:rat=\"CrossRat\"",
+      "colour": "#0088cc",
+      "exportable": true,
+      "user_id": "0",
+      "hide_tag": false,
+      "numerical_value": null,
+      "is_galaxy": true,
+      "is_custom_galaxy": false,
+      "local": 0
+    }
+  ]
+}

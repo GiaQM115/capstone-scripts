@@ -52,8 +52,11 @@ def get_emails(tags):
             email_set.add(query[0])
     
     if not email_set:
-        print("yyet")
-    print(email_set)
+        mycursor.execute(f"select email from mappings where GNAME = 'default';")
+        myresult = mycursor.fetchall()
+        for query in myresult:
+            email_set.add(query[0])
+    
     return email_set
 
 
@@ -72,8 +75,7 @@ def send_emails(event, tags):
         email = contact
         subject = f'MISP ALERT EVENT {event}'
         msg = generate_msg(event, tags)
-        #send(FROM_EMAIL, FROM_EMAIL_PASS,email, subject, msg)
-send_emails(11111, ["c"])
+        send(FROM_EMAIL, FROM_EMAIL_PASS,email, subject, msg)
 
 
 
