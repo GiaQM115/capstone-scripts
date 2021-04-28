@@ -33,8 +33,10 @@ docker stop comparison-server
 docker rm comparison-server
 docker stop user-manager
 docker rm user-manager
-docker rmi harvarditsecurity/misp
-docker rmi mattrayner/lamp
+rm -rf docker-misp
+docker image prune -a
+
+docker images
 
 printf "Fetching MISP instance\n"
 git clone https://github.com/harvard-itsecurity/docker-misp.git
@@ -43,6 +45,7 @@ echo -n "Set your MySQL password:  "
 read -s mysql
 printf "\n"
 read -sp "Retype MySQL password: " check
+printf "\n"
 while [[ $mysql != $check ]]; do
 	echo "Passwords don't match!"
 	echo mysql
@@ -51,52 +54,43 @@ while [[ $mysql != $check ]]; do
 	read -sp "MySQL password: " mysql
 	printf "\n"
 	read -sp "Retype password: " check
+	printf "\n"
 done
 
 echo -n "Set your GPG password: "
 read -s gpg
 printf "\n"
 read -sp "Retype GPG password: " check
+printf "\n"
 while [[ $gpg != $check ]]; do
 	echo "Passwords don't match!"
 	printf "\n"
 	read -sp "GPG password: " gpg
 	printf "\n"
 	read -sp "Retype password: " check
+	printf "\n"
 done
 
 echo -n "Set the FQDN for your MISP instance: "
 read fqdn
 
-echo -n "Set your postfix relay, or press Enter for default (localhost): "
-read postfix
-
-echo -n "Set your MISP admin email, or press Enter for default (admin@localhost): "
-read email
-
 printf "Updating build files\n"
-sed -i "s/MYSQL_MISP_PASSWORD=.*\\\/MYSQL_MISP_PASSWORD=$mysql \\\/" docker-misp/build.sh 
-sed -i "s/MISP_GPG_PASSWORD=.*\\\/MISP_GPG_PASSWORD=$gpg \\\/" docker-misp/build.sh 
-sed -i "s/MISP_FQDN=.*\\\/MISP_FQDN=$fqdn \\\/" docker-misp/build.sh 
-if [ ! -z "${postfix}" ]; then
-	sed -i "s/POSTFIX_RELAY_HOST=.*\\\/POSTFIX_RELAY_HOST=$postfix \\\/" docker-misp/build.sh 
-fi
-if [ ! -z "${email}" ]; then
-	sed -i "s/MISP_EMAIL=.*\\\/MISP_EMAIL=$email \\\/" docker-misp/build.sh 
-else
-	email='admin@admin.test'
-fi
+sed -i "s/MYSQL_MISP_PASSWORD=.*\\\/MYSQL_MISP_PASSWORD='$mysql' \\\/" docker-misp/build.sh 
+sed -i "s/MISP_GPG_PASSWORD=.*\\\/MISP_GPG_PASSWORD='$gpg' \\\/" docker-misp/build.sh 
+sed -i "s/MISP_FQDN=.*\\\/MISP_FQDN='$fqdn' \\\/" docker-misp/build.sh 
+email='admin@admin.test'
+
+printf "Creating DB directory at /etc/docker/misp-db\n"
+rm -rf /etc/docker
+mkdir -p /etc/docker/misp-db
 
 printf "Building MISP instance\n"
 cd docker-misp
 bash build.sh
 
-printf "Creating DB directory at /etc/docker/misp-db\n"
-mkdir -p /etc/docker/misp-db
-
 printf "Starting MISP instance\n"
-docker run -d --rm -v /etc/docker/misp-db:/var/lib/mysql harvarditsecurity/misp /init-db
-docker run --name=MISP -d -p 443:443 -p 80:80 -p 3306:3306 -p 6666:6666 -v /etc/docker/misp-db:/var/lib/mysql harvarditsecurity/misp
+docker run -it --rm -v /etc/docker/misp-db:/var/lib/mysql harvarditsecurity/misp /init-db
+docker run --name=MISP -it -d -p 443:443 -p 80:80 -p 3306:3306 -p 6666:6666 -v /etc/docker/misp-db:/var/lib/mysql harvarditsecurity/misp
 
 printf "Server will be up momentarily. Please go to https://$fqdn and login with '$email', PW: 'admin'\n"
 
@@ -142,11 +136,17 @@ mkdir -p user_manager/mysql
 
 echo -n "User Manager MySQL admin password: "
 read -s umpass
+printf "\n"
 read -sp "Retype MySQL password: " check
-while [[ umpass != check ]]; do
+printf "\n"
+while [[ $umpass != $check ]]; do
 	echo "Passwords don't match!"
+	printf "\n"
 	read -sp "MySQL password: " umpass
+	printf "\n"
 	read -sp "Retype password: " check
+	printf "\n"
+done
 
 cd user_manager
 cp site/config_template site/config.php
