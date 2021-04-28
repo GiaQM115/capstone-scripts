@@ -39,11 +39,31 @@ docker rmi mattrayner/lamp
 printf "Fetching MISP instance\n"
 git clone https://github.com/harvard-itsecurity/docker-misp.git
 
-echo -n "Set your MYSQL password:  "
-read mysql
+echo -n "Set your MySQL password:  "
+read -s mysql
+printf "\n"
+read -sp "Retype MySQL password: " check
+while [[ $mysql != $check ]]; do
+	echo "Passwords don't match!"
+	echo mysql
+	echo check
+	printf "\n"
+	read -sp "MySQL password: " mysql
+	printf "\n"
+	read -sp "Retype password: " check
+done
 
 echo -n "Set your GPG password: "
-read gpg
+read -s gpg
+printf "\n"
+read -sp "Retype GPG password: " check
+while [[ $gpg != $check ]]; do
+	echo "Passwords don't match!"
+	printf "\n"
+	read -sp "GPG password: " gpg
+	printf "\n"
+	read -sp "Retype password: " check
+done
 
 echo -n "Set the FQDN for your MISP instance: "
 read fqdn
@@ -64,7 +84,7 @@ fi
 if [ ! -z "${email}" ]; then
 	sed -i "s/MISP_EMAIL=.*\\\/MISP_EMAIL=$email \\\/" docker-misp/build.sh 
 else
-	email='admin@localhost'
+	email='admin@admin.test'
 fi
 
 printf "Building MISP instance\n"
@@ -121,7 +141,12 @@ cd ../
 mkdir -p user_manager/mysql
 
 echo -n "User Manager MySQL admin password: "
-read umpass
+read -s umpass
+read -sp "Retype MySQL password: " check
+while [[ umpass != check ]]; do
+	echo "Passwords don't match!"
+	read -sp "MySQL password: " umpass
+	read -sp "Retype password: " check
 
 cd user_manager
 cp site/config_template site/config.php
