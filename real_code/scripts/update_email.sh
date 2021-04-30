@@ -1,10 +1,12 @@
 echo -n "What is the admin/sending email address? "
 read email
 read -sp "Password: " pass
+printf "\n"
 read -sp "Retype Password: " check
 while [[ $pass != $check ]]; do
 	printf "\nPasswords do not match!\n"
 	read -sp "Password: " pass
+	printf "\n"
 	read -sp "Retype Password: " check
 done
 
