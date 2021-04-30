@@ -33,8 +33,6 @@ docker stop comparison-server
 docker rm comparison-server
 docker stop user-manager
 docker rm user-manager
-rm -rf docker-misp
-docker image prune -a
 
 docker images
 
@@ -105,9 +103,11 @@ read mid
 echo -n "MISP auth key: "
 read key
 
+echo -n "Fetch auth key: "
+read fkey
+
 echo -n "Initial threshold (this can be tuned later): "
 read threshold
-
 
 cd scripts
 cp client_sock_backup client_sock.py
@@ -124,15 +124,38 @@ sed -i "s/MISP_FQDN/$fqdn/" correlate.py
 sed -i "s/MISP_AUTH_KEY/$key/" correlate.py
 
 sed -i "s/MISP_FQDN/$fqdn/" fetch.py
-sed -i "s/MISP_AUTH_KEY/$key" fetch.py
+sed -i "s/MISP_AUTH_KEY/$fkey/" fetch.py
 
-printf "Building Docker image\n"
-docker build -t correlation-base .
-printf "Running container\n"
-docker run --name=comparison-server -d -p $port:$port correlation-base
-cd ../
+cd ../user_manager
+cp site/config_template site/config.php
+sed -i "s/MYSQL_ADMIN_PASS/$umpass/" site/config.php
+cd ../scripts
 
-mkdir -p user_manager/mysql
+printf "\nConfiguring send_emails.py\n"
+read -p "Mail server (ie smtp.gmail.com): " mserv
+read -p "Mail port (ie 587): " mport
+read -p "API email address: " apie
+read -sp "Password: " apipass
+printf "\n"
+read -sp "Retype password: " check
+printf "\n"
+while [[ $apipass != $check ]]; do
+	echo "Passwords don't match!"
+	printf "\n"
+	read -sp "Password: " apipass
+	printf "\n"
+	read -sp "Retype password: " check
+	printf "\n"
+done
+
+
+cp send_emails_backup send_emails.py
+sed -i "s/UMPASS/$umpass/" send_emails.py
+sed -i "s/MAIL_FROM/$apie/" send_emails.py
+sed -i "s/MAIL_PASS/$apipass/" send_emails.py
+sed -i "s/FQDN/$fqdn/" send_emails.py
+sed -i "s/MAIL_SERVER/$mserv/" send_emails.py
+sed -i "s/MAIL_PORT/$mport/" send_emails.py
 
 echo -n "User Manager MySQL admin password: "
 read -s umpass
@@ -148,10 +171,15 @@ while [[ $umpass != $check ]]; do
 	printf "\n"
 done
 
-cd user_manager
-cp site/config_template site/config.php
-sed -i "s/MYSQL_ADMIN_PASS/$umpass/" site/config.php
+printf "Building Docker image\n"
+docker build -t correlation-base .
+printf "Running container\n"
+docker run --name=comparison-server -d -p $port:$port correlation-base
+cd ../
 
+mkdir -p user_manager/mysql
+
+cd user_manager/
 printf "Starting user manager\n"
 docker build -t usermgt .
 docker run --name=user-manager -d \

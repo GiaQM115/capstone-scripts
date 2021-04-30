@@ -10,7 +10,7 @@ from email.mime.text import MIMEText
 import mysql.connector
 from getpass import getpass
 
-misp_url = 'https://FQDN/events/view/'
+misp_url = 'https://localhost/events/view/'
 
 def send(email_from, email_pass, email_to, subject, msg):
     # Setup the MIME
@@ -30,7 +30,7 @@ def send(email_from, email_pass, email_to, subject, msg):
 
 #The mail addresses and password
 def session(email_from, email_from_pass):
-    session = smtplib.SMTP('MAIL_SERVER', MAIL_PORT) #use gmail with port
+    session = smtplib.SMTP('smtp.gmail.com', 587) #use gmail with port
     session.starttls() #enable security
     session.login(email_from, email_from_pass) #login with mail_id and password
     return session
@@ -40,7 +40,7 @@ def get_emails(tags):
         host='localhost',
         port=3000,
         user = 'admin',
-        password = 'UMPASS',
+        password = '',
         database = 'usermgt'
     )
     email_set = set()
@@ -68,14 +68,13 @@ def generate_msg(event, tags):
 def send_emails(event, tags): 
     #The mail addresses and password
     FROM_EMAIL = 'aproject490@gmail.com'
-    #FROM_EMAIL_PASS = 'Possum@490'
-    FROM_EMAIL_PASS = 'Possum@490'
+    FROM_EPossum@490 = "MAIL_PASS"
     Contacts = get_emails(tags)
     for contact in Contacts:
         email = contact
         subject = f'MISP ALERT EVENT {event}'
         msg = generate_msg(event, tags)
-        send(FROM_EMAIL, FROM_EMAIL_PASS,email, subject, msg)
+        send(FROM_EMAIL, FROM_EPossum@490,email, subject, msg)
 
 
 
