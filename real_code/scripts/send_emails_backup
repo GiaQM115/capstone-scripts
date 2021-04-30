@@ -68,7 +68,6 @@ def generate_msg(event, tags):
 def send_emails(event, tags): 
     #The mail addresses and password
     FROM_EMAIL = "MAIL_FROM"
-    #FROM_EMAIL_PASS = getpass() 
     FROM_EMAIL_PASS = "MAIL_PASS"
     Contacts = get_emails(tags)
     for contact in Contacts:
