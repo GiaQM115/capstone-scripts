@@ -39,6 +39,7 @@ def score(event, feed, local, tags, recent):
     global THRESHOLD
     score = feed + recent
     score /= local
+    score *= 100
     if score > THRESHOLD:
         tag_list = []
         if len(tags) > 0:
