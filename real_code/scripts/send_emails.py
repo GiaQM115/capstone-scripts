@@ -40,7 +40,7 @@ def get_emails(tags):
         host='localhost',
         port=3000,
         user = 'admin',
-        password = '',
+        password = 'Test!123',
         database = 'usermgt'
     )
     email_set = set()
@@ -67,8 +67,8 @@ def generate_msg(event, tags):
 
 def send_emails(event, tags): 
     #The mail addresses and password
-    FROM_EMAIL = 'aproject490@gmail.com'
-    FROM_EPossum@490 = "MAIL_PASS"
+    FROM_EMAIL = "aproject490@gmail.com"
+    FROM_EMAIL_PASS = "MAIL_PASS"
     Contacts = get_emails(tags)
     for contact in Contacts:
         email = contact

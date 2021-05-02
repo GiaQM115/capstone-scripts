@@ -1,9 +1,22 @@
+"""
+client_sock.py sets up and handles the comunication between the sever and the client before
+forwarding the information to a pipe to be processed by a different script
+"""
+
 import socket, json, traceback, collections, re, time
 
 ## DEFINITIONS ##
 PORT = MISP_SERVER_PORT
 
 def recvData():
+    """ Recieves data from the client and sends a "ok" response to them.
+        Once data completes function returns
+
+    Parameters
+    ----------
+    None
+
+    """
     data = ""
     type_ = ""
     global tasks

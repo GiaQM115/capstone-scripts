@@ -6,4 +6,6 @@ python3 client_sock.py > sock.log&
 
 bash schedule.sh
 
+python3 fetch.py
+
 tail --follow correlate.log

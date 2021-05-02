@@ -126,6 +126,21 @@ sed -i "s/MISP_AUTH_KEY/$key/" correlate.py
 sed -i "s/MISP_FQDN/$fqdn/" fetch.py
 sed -i "s/MISP_AUTH_KEY/$fkey/" fetch.py
 
+echo -n "User Manager MySQL admin password: "
+read -s umpass
+printf "\n"
+read -sp "Retype MySQL password: " check
+printf "\n"
+while [[ $umpass != $check ]]; do
+	echo "Passwords don't match!"
+	printf "\n"
+	read -sp "MySQL password: " umpass
+	printf "\n"
+	read -sp "Retype password: " check
+	printf "\n"
+done
+
+
 cd ../user_manager
 cp site/config_template site/config.php
 sed -i "s/MYSQL_ADMIN_PASS/$umpass/" site/config.php
@@ -156,20 +171,6 @@ sed -i "s/MAIL_PASS/$apipass/" send_emails.py
 sed -i "s/FQDN/$fqdn/" send_emails.py
 sed -i "s/MAIL_SERVER/$mserv/" send_emails.py
 sed -i "s/MAIL_PORT/$mport/" send_emails.py
-
-echo -n "User Manager MySQL admin password: "
-read -s umpass
-printf "\n"
-read -sp "Retype MySQL password: " check
-printf "\n"
-while [[ $umpass != $check ]]; do
-	echo "Passwords don't match!"
-	printf "\n"
-	read -sp "MySQL password: " umpass
-	printf "\n"
-	read -sp "Retype password: " check
-	printf "\n"
-done
 
 printf "Building Docker image\n"
 docker build -t correlation-base .
