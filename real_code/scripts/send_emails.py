@@ -37,7 +37,7 @@ def session(email_from, email_from_pass):
 
 def get_emails(tags):
     mydb = mysql.connector.connect(
-        host='localhost',
+        host='192.168.1.4',
         port=3000,
         user = 'admin',
         password = 'Test!123',
@@ -52,7 +52,7 @@ def get_emails(tags):
             email_set.add(query[0])
     
     if not email_set:
-        mycursor.execute(f"select email from mappings where GNAME = 'default';")
+        mycursor.execute("select email from mappings where GNAME = 'default'")
         myresult = mycursor.fetchall()
         for query in myresult:
             email_set.add(query[0])
@@ -68,13 +68,11 @@ def generate_msg(event, tags):
 def send_emails(event, tags): 
     #The mail addresses and password
     FROM_EMAIL = "aproject490@gmail.com"
-    FROM_EMAIL_PASS = "MAIL_PASS"
+    FROM_EMAIL_PASS = "Possum@490"
     Contacts = get_emails(tags)
     for contact in Contacts:
         email = contact
         subject = f'MISP ALERT EVENT {event}'
         msg = generate_msg(event, tags)
-        send(FROM_EMAIL, FROM_EPossum@490,email, subject, msg)
-
-
+        send(FROM_EMAIL, FROM_EMAIL_PASS,email, subject, msg)
 

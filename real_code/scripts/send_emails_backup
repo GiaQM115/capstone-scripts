@@ -79,7 +79,7 @@ def get_emails(tags):
         set of all emails that should be alerted 
     """
     mydb = mysql.connector.connect(
-        host='localhost',
+        host='MISP_HOST',
         port=3000,
         user = 'admin',
         password = 'UMPASS',
@@ -94,7 +94,7 @@ def get_emails(tags):
             email_set.add(query[0])
     
     if not email_set:
-        mycursor.execute(f"select email from mappings where GNAME = 'default';")
+        mycursor.execute(f"select email from mappings where GNAME = 'default'")
         myresult = mycursor.fetchall()
         for query in myresult:
             email_set.add(query[0])
@@ -135,7 +135,7 @@ def send_emails(event, tags):
     """
     #The mail addresses and password
     FROM_EMAIL = "MAIL_FROM"
-    FROM_EMAIL_PASS = "MAIL_PASS"
+    FROM_EMAIL_PASS = "PASSWORD_MAIL"
     Contacts = get_emails(tags)
     for contact in Contacts:
         email = contact
