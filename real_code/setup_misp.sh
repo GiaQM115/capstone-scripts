@@ -69,7 +69,7 @@ while [[ $gpg != $check ]]; do
 	printf "\n"
 done
 
-echo -n "Set the FQDN for your MISP instance: "
+echo -n "Set the FQDN for your MISP instance: (do not type 'localhost')"
 read fqdn
 
 printf "Updating build files\n"
@@ -166,8 +166,9 @@ done
 
 cp send_emails_backup send_emails.py
 sed -i "s/UMPASS/$umpass/" send_emails.py
+sed -i "s/MISP_HOST/$fqdn/" send_emails.py
 sed -i "s/MAIL_FROM/$apie/" send_emails.py
-sed -i "s/MAIL_PASS/$apipass/" send_emails.py
+sed -i "s/PASSWORD_MAIL/$apipass/" send_emails.py
 sed -i "s/FQDN/$fqdn/" send_emails.py
 sed -i "s/MAIL_SERVER/$mserv/" send_emails.py
 sed -i "s/MAIL_PORT/$mport/" send_emails.py
