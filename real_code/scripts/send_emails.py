@@ -10,9 +10,27 @@ from email.mime.text import MIMEText
 import mysql.connector
 from getpass import getpass
 
-misp_url = 'https://localhost/events/view/'
+misp_url = 'https://192.168.1.4/events/view/'
 
 def send(email_from, email_pass, email_to, subject, msg):
+    """ Sends the email to the users
+
+    Parameters
+    ----------
+    email_from: str
+        The email of who is sending it
+    email_pass: str
+        Password for sender email
+    email_to: str
+        The email of who the alerrt is being sent to
+    subject: str
+        Subject of the email
+    msg: str
+        Message of the email
+    Returns:
+    ---------
+    None
+    """
     # Setup the MIME
     message = MIMEMultipart()
     message['From'] = email_from
@@ -30,12 +48,36 @@ def send(email_from, email_pass, email_to, subject, msg):
 
 #The mail addresses and password
 def session(email_from, email_from_pass):
+    """ Creates a session to send emails from
+
+    Parameters
+    ----------
+    email_from: str
+        The email of who is sending it
+    email_pass: str
+        Password for sender email
+    Returns:
+    ---------
+    session: SMTP session
+        Allows for sending emails from account 
+    """
     session = smtplib.SMTP('smtp.gmail.com', 587) #use gmail with port
     session.starttls() #enable security
     session.login(email_from, email_from_pass) #login with mail_id and password
     return session
 
 def get_emails(tags):
+    """ Gets a list of emails who should be alerted based on the tags
+
+    Parameters
+    ----------
+    tags: list
+        list of all tags to use in database queries
+    Returns:
+    ---------
+    email_set: set
+        set of all emails that should be alerted 
+    """
     mydb = mysql.connector.connect(
         host='192.168.1.4',
         port=3000,
@@ -52,7 +94,7 @@ def get_emails(tags):
             email_set.add(query[0])
     
     if not email_set:
-        mycursor.execute("select email from mappings where GNAME = 'default'")
+        mycursor.execute(f"select email from mappings where GNAME = 'default'")
         myresult = mycursor.fetchall()
         for query in myresult:
             email_set.add(query[0])
@@ -61,11 +103,36 @@ def get_emails(tags):
 
 
 def generate_msg(event, tags):
+    """ Generate message for the alert email
+
+    Parameters
+    ----------
+    event: int
+        Event id number
+    tags: list
+        List of tags seen on the event
+    Returns:
+    ---------
+    msg: str
+        Message of the email
+    """
     global misp_url
     msg = f"Hello, we have a new alert corresponding to Event {event} that requires immediate attention. Tags found on the event are {tags}. For more information go to the MISP Dashboard: {misp_url}{event}"
     return msg
 
 def send_emails(event, tags): 
+    """ Main function to send emails and call all subfunctions
+
+    Parameters
+    ----------
+    event: int
+        Event id number
+    tags: list
+        List of tags seen on the event
+    Returns:
+    ---------
+    None
+    """
     #The mail addresses and password
     FROM_EMAIL = "aproject490@gmail.com"
     FROM_EMAIL_PASS = "Possum@490"
@@ -75,4 +142,6 @@ def send_emails(event, tags):
         subject = f'MISP ALERT EVENT {event}'
         msg = generate_msg(event, tags)
         send(FROM_EMAIL, FROM_EMAIL_PASS,email, subject, msg)
+
+
 

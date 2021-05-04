@@ -161,6 +161,9 @@ def parse(data, event):
             continue
         if type(data[key]) == list and key == "ips":
             for elem in data[key]:
+                if elem == '0.0.0.0':
+                    attr = addAttribute(event, t, elem, category, True, sighting)
+                    attr = addAttribute(event, 'ip-dst', elem, category, True, sighting)
                 attr = addAttribute(event, t, elem, category, netaddr.IPAddress(elem).is_private(), sighting)
                 attr = addAttribute(event, 'ip-dst', elem, category, netaddr.IPAddress(elem).is_private(), sighting)
             continue
