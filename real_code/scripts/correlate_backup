@@ -56,11 +56,8 @@ def score(event, feed, local, tags, recent):
         score that the event recieved
     """
 
-    if local == 0 and feed > 0:
-        print("Email alert")
-        return 1
-    elif local == 0:
-        return 0
+    if local == 0:
+        local = 1
     global THRESHOLD
     score = feed + recent
     score /= local
@@ -71,6 +68,7 @@ def score(event, feed, local, tags, recent):
             for tag in tags:
                 tag_list.append(json.loads(tag)["name"])
         send_emails(event, tag_list)
+        print("Email Alert")
     return score
 
 
