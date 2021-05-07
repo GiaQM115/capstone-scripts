@@ -11,5 +11,7 @@ COPY fetch.py .
 COPY watchdog.sh .
 COPY schedule.sh .
 
+EXPOSE 12345
+
 ENTRYPOINT ["bash"]
 CMD ["run.sh"]

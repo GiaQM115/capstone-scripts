@@ -31,7 +31,8 @@ tag_dict = {
         'dip': ['Network activity', 'ip-dst'], 
         'sip': ['Network activity', 'ip-src'],
         'event': ['Other', 'comment'],
-        'error': ['Other', 'comment']
+        'error': ['Other', 'comment'],
+        'domains': ['Network activity', 'domain']
         }
 
 def score(event, feed, local, tags, recent):
@@ -166,6 +167,9 @@ def parse(data, event):
                     attr = addAttribute(event, t, elem, category, netaddr.IPAddress(elem).is_private(), sighting)
                     attr = addAttribute(event, 'ip-dst', elem, category, netaddr.IPAddress(elem).is_private(), sighting)
             continue
+        elif type(data[key]) == list and key == "domains":
+            for elem in data[key]:
+                attr = addAttribute(event, t, elem, caegory, False, sighting)
         elif type(data[key]) == list and key == "eventTime":
             for elem in data[key]:
                 attr = addAttribute(event, t, elem, category, True, sighting)

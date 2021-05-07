@@ -41,7 +41,6 @@ def send(email_from, email_pass, email_to, subject, msg):
     #Create SMTP session for sending the mail
     sender_session = session(email_from, email_pass)
     text = message.as_string()
-    print(f"Message: {text}")
     sender_session.sendmail(email_from, email_to, text)
     sender_session.quit()
     print('Mail Sent To {}'.format(email_to))
@@ -143,6 +142,5 @@ def send_emails(event, tags):
         subject = f'MISP ALERT EVENT {event}'
         msg = generate_msg(event, tags)
         send(FROM_EMAIL, FROM_EMAIL_PASS,email, subject, msg)
-
 
 
