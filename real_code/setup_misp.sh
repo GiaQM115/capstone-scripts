@@ -69,7 +69,7 @@ while [[ $gpg != $check ]]; do
 	printf "\n"
 done
 
-echo -n "Set the FQDN for your MISP instance: (do not type 'localhost')"
+echo -n "Set the FQDN for your MISP instance (do not type 'localhost'): "
 read fqdn
 
 printf "Updating build files\n"
@@ -114,7 +114,7 @@ cp client_sock_backup client_sock.py
 cp correlate_backup correlate.py
 cp fetch_backup fetch.py
 
-printf "Preparing scripts"
+printf "Preparing scripts\n"
 
 sed -i "s/MISP_SERVER_PORT/$port/" client_sock.py
 
