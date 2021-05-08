@@ -167,9 +167,12 @@ def parse(data, event):
             continue
         elif type(data[key]) == list and key == "domains":
             for elem in data[key]:
+                if elem[-1] != "/":
+                    elem = f"{elem}/"
                 attr = addAttribute(event, t, elem, category, False, sighting)
-                attr = addAttribute(event, t, f"https://{elem}", category, False, sighting)
-                attr = addAttribute(event, t, f"http://{elem}", category, False, sighting)
+                if elem[0:4] != "http":
+                    attr = addAttribute(event, t, f"https://{elem}", category, False, sighting)
+                    attr = addAttribute(event, t, f"http://{elem}", category, False, sighting)
             continue
         elif type(data[key]) == list and key == "eventTime":
             for elem in data[key]:
