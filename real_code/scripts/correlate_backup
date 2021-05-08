@@ -8,11 +8,6 @@ import datetime as dt
 from multiprocessing import Process, Queue
 from pymisp import ExpandedPyMISP, PyMISP, MISPEvent, MISPAttribute, MISPSighting, MISPTag#
 
-#
-# Remove after testing
-#
-import csv
-
 from send_emails import send_emails
 
 import urllib3
@@ -75,12 +70,6 @@ def score(event, feed, local, tags, recent):
                 tag_list.append(json.loads(tag)["name"])
         send_emails(event, tag_list)
         print("Email Alert")
-    #
-    # Remove after testing
-    #
-    with open('analysis2.csv', 'a') as outfile:
-        writer = csv.writer(outfile, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        writer.writerow([event, local, feed, recent, tag_list, score > THRESHOLD])
     return score
 
 
@@ -179,6 +168,8 @@ def parse(data, event):
         elif type(data[key]) == list and key == "domains":
             for elem in data[key]:
                 attr = addAttribute(event, t, elem, category, False, sighting)
+                attr = addAttribute(event, t, f"https://{elem}", category, False, sighting)
+                attr = addAttribute(event, t, f"http://{elem}", category, False, sighting)
             continue
         elif type(data[key]) == list and key == "eventTime":
             for elem in data[key]:
@@ -295,13 +286,6 @@ QUEUE = Queue()
 qproc = Process(target=qPop, args=(QUEUE,))
 qproc.daemon = True
 qproc.start()
-
-#
-# Remove after testing
-#
-with open('analysis2.csv', 'w') as outfile:
-    writer = csv.writer(outfile, delimiter=",", quotechar='"', quoting=csv.QUOTE_MINIMAL)
-    writer.writerow(['Event ID', 'Local Hits', 'Feed Hits', 'Recent Hits', 'Tags', 'Alert Sent'])
 
 try:
     while True:
